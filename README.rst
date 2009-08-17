@@ -3,6 +3,7 @@ Story Parser
 
 This project is a start towards writing text stories to pyhistorian, but it can be used out of it.
 It parsers a string file like::
+
     Story: Writing a parser
     As a pyhistorian contributor
     I want to add support to stories written in text
