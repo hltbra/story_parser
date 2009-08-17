@@ -1,6 +1,6 @@
-from parser import parse_story,\
-                   InvalidHeaderException,\
-                   InvalidScenarioException
+from story_parser import parse_story,\
+                         InvalidHeaderException,\
+                         InvalidScenarioException
 from should_dsl import should_be
 import unittest
 

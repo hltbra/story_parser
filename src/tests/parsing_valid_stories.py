@@ -1,5 +1,5 @@
-from parser import parse_story,\
-                   InvalidHeaderException
+from story_parser import parse_story,\
+                         InvalidHeaderException
 from should_dsl import should_be
 import unittest
 

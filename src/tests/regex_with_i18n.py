@@ -39,7 +39,7 @@
 	True
 
 '''
-from parser import RegexInternationalized
+from story_parser import RegexInternationalized
 import re
 
 if __name__ == '__main__':
