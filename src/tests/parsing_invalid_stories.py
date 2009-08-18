@@ -11,19 +11,29 @@ class StoryParserWithInvalidStoryHeaders(unittest.TestCase):
         InvalidHeaderException |should_be.thrown_by| (parse_story, """
                                                       Story title is invalid
                                                       As a <role>
-                                                      I want to <benefit>""")
+                                                      I want to <feature>
+                                                      So that <businness value>""")
 
     def test_should_raise_InvalidHeaderException_with_invalid_story_role(self):
         InvalidHeaderException |should_be.thrown_by| (parse_story, """
                                                       Story: <Title>
                                                       As a_invalid
-                                                      I want to <benefit>""")
+                                                      I want to <feature>
+                                                      So that <businness value>""")
 
-    def test_should_raise_InvalidHeaderException_with_invalid_story_benefit(self):
+    def test_should_raise_InvalidHeaderException_with_invalid_story_feature(self):
         InvalidHeaderException |should_be.thrown_by| (parse_story, """
                                                       Story: <Title>
                                                       As a <role>
-                                                      I want to_be invalid""")
+                                                      I want to_be invalid
+                                                      So that <businness value>""")
+
+    def test_should_raise_InvalidHeaderException_with_invalid_story_businness_value(self):
+        InvalidHeaderException |should_be.thrown_by| (parse_story, """
+                                                      Story: <Title>
+                                                      As a <role>
+                                                      I want to <feature>
+                                                      So that_businness value_invalid""")
 
 
 class StoryParserWithInvalidScenarios(unittest.TestCase):
@@ -31,7 +41,8 @@ class StoryParserWithInvalidScenarios(unittest.TestCase):
         InvalidScenarioException |should_be.thrown_by| (parse_story,
                                                         """Story: <Title>
                                                            As a <role>
-                                                           I want to <benefit>
+                                                           I want to <feature>
+                                                           So that <businness value>
 
                                                            Scenario Getting Money""") 
 
@@ -39,7 +50,8 @@ class StoryParserWithInvalidScenarios(unittest.TestCase):
         InvalidScenarioException |should_be.thrown_by| (parse_story,
                                                         """Story: <Title>
                                                            As a <role>
-                                                           I want to <benefit>
+                                                           I want to <feature>
+                                                           So that <businness value>
 
                                                            Scenario 1: <scenario_title>
                                                            Foo Step

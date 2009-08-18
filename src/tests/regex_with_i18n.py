@@ -13,7 +13,7 @@
 	>>> re.match(portuguese['as_a_regex'], 'Como um <papel>') is not None
 	True
 
-	>>> re.match(english['i_want_to_regex'], 'I want to <benefit>') is not None
+	>>> re.match(english['i_want_to_regex'], 'I want to <feature>') is not None
 	True
 	>>> re.match(portuguese['i_want_to_regex'], 'Eu quero <benefício>') is not None
 	True

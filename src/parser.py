@@ -10,6 +10,7 @@ class RegexInternationalized(object):
                 'pt-br': {'story_regex': r'História: (.+)',
                           'as_a_regex': r'Como um (.+)',
                           'i_want_to_regex': r'Eu quero (.+)',
+                          'so_that_regex': r'Para que (.+)',
                           'scenario_regex': r'Cenário \d+: (.+)',
                           'given_regex': r'Dado que (.+)',
                           'when_regex': r'Quando (.+)',
@@ -18,6 +19,7 @@ class RegexInternationalized(object):
                 'en-us': {'story_regex': r'Story: (.+)',
                           'as_a_regex': r'As an? (.+)',
                           'i_want_to_regex': r'I want to (.+)',
+                          'so_that_regex': r'So that (.+)',
                           'scenario_regex': r'Scenario \d+: (.+)',
                           'given_regex': r'Given (.+)',
                           'when_regex': r'When (.+)',
@@ -34,7 +36,8 @@ class RegexInternationalized(object):
 class StoryParser(object):
     _story_title = ''
     _story_role = ''
-    _story_benefit = ''
+    _story_feature = ''
+    _story_businness_value = ''
 
     def __init__(self, story_text, language='en-us'):
         self._scenarios = []
@@ -51,18 +54,21 @@ class StoryParser(object):
     def _parse_header(self):
         story_title = re.match(self._regexes['story_regex'], self._lines[0])
         story_role = re.match(self._regexes['as_a_regex'], self._lines[1])
-        story_benefit = re.match(self._regexes['i_want_to_regex'], self._lines[2])
+        story_feature = re.match(self._regexes['i_want_to_regex'], self._lines[2])
+        story_businness_value = re.match(self._regexes['so_that_regex'], self._lines[3])
         if story_title is None or\
            story_role is None or\
-           story_benefit is None:
+           story_feature is None or\
+           story_businness_value is None:
             raise InvalidHeaderException("Invalid Story title line")
         else:
             self._story_title = story_title.group(1)
             self._story_role = story_role.group(1)
-            self._story_benefit = story_benefit.group(1)
+            self._story_feature = story_feature.group(1)
+            self._story_businness_value = story_businness_value.group(1)
 
     def _parse_scenarios(self):
-        index = 3
+        index = 4
         scenarios = []
         while index < len(self._lines):
             story_title = re.match(self._regexes['scenario_regex'], self._lines[index])
@@ -101,8 +107,11 @@ class StoryParser(object):
     def get_story_role(self):
         return self._story_role
 
-    def get_story_benefit(self):
-        return self._story_benefit
+    def get_story_feature(self):
+        return self._story_feature
+
+    def get_story_businness_value(self):
+        return self._story_businness_value
 
     def get_scenarios(self):
         return self._scenarios
