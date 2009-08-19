@@ -1,7 +1,7 @@
 # coding: utf-8
 import re
 
-def parse_story(story_text):
+def parse_text(story_text):
     return StoryParser(story_text)
 
 
@@ -33,54 +33,85 @@ class RegexInternationalized(object):
     def __getitem__(self, term):
         return self._regexes[term]
 
+
+class StoryParsed(object):
+    def __init__(self, title, role, feature, business_value, scenarios):
+        self._title = title
+        self._role = role
+        self._feature = feature
+        self._business_value = business_value
+        self._scenarios = scenarios
+
+    @property
+    def title(self):
+        return self._title
+
+    @property
+    def role(self):
+        return self._role
+
+    @property
+    def feature(self):
+        return self._feature
+
+    @property
+    def business_value(self):
+        return self._business_value
+
+    @property
+    def scenarios(self):
+        return self._scenarios
+
 class StoryParser(object):
     _story_title = ''
     _story_role = ''
     _story_feature = ''
-    _story_businness_value = ''
+    _story_business_value = ''
 
     def __init__(self, story_text, language='en-us'):
         self._scenarios = []
         self._story_text = story_text
+        self._stories = []
         self._lines = []
         self._remove_blank_lines()
         self._regexes = RegexInternationalized(language)
-        self._parse()
+        self._parse_stories()
 
     def _remove_blank_lines(self):
         lines = self._story_text.split('\n')
         self._lines = [line.strip() for line in lines if line.strip()]
 
-    def _parse_header(self):
-        story_title = re.match(self._regexes['story_regex'], self._lines[0])
-        story_role = re.match(self._regexes['as_a_regex'], self._lines[1])
-        story_feature = re.match(self._regexes['i_want_to_regex'], self._lines[2])
-        story_businness_value = re.match(self._regexes['so_that_regex'], self._lines[3])
+    def _parse_story_header(self, lines):
+        if len(lines) < 4:
+            raise InvalidHeaderException("Invalid Story Header!")
+        story_title = re.match(self._regexes['story_regex'], lines[0])
+        story_role = re.match(self._regexes['as_a_regex'], lines[1])
+        story_feature = re.match(self._regexes['i_want_to_regex'], lines[2])
+        story_business_value = re.match(self._regexes['so_that_regex'], lines[3])
         if story_title is None or\
            story_role is None or\
            story_feature is None or\
-           story_businness_value is None:
-            raise InvalidHeaderException("Invalid Story title line")
-        else:
-            self._story_title = story_title.group(1)
-            self._story_role = story_role.group(1)
-            self._story_feature = story_feature.group(1)
-            self._story_businness_value = story_businness_value.group(1)
+           story_business_value is None:
+            raise InvalidHeaderException("Invalid Story Header!")
+        return (story_title.group(1),
+                story_role.group(1),
+                story_feature.group(1),
+                story_business_value.group(1))
 
-    def _parse_scenarios(self):
-        index = 4
+    def _parse_scenarios(self, lines):
+        index = 0
         scenarios = []
-        while index < len(self._lines):
-            story_title = re.match(self._regexes['scenario_regex'], self._lines[index])
+        while index < len(lines):
+            story_title = re.match(self._regexes['scenario_regex'], lines[index])
             if story_title:
                 index += 1
                 steps = {'given': [],
                          'when': [],
                          'then': []}
-                while index < len(self._lines):
-                    if re.match(self._regexes['scenario_regex'], self._lines[index]):
+                while index < len(lines):
+                    if re.match(self._regexes['scenario_regex'], lines[index]):
                         break
-                    line = self._lines[index]
+                    line = lines[index]
                     given_line = re.match(self._regexes['given_regex'], line)
                     when_line = re.match(self._regexes['when_regex'], line)
                     then_line = re.match(self._regexes['then_regex'], line)
@@ -91,30 +122,37 @@ class StoryParser(object):
                     elif then_line:
                         steps['then'].append(then_line.group(1))
                     else:
-                        raise InvalidScenarioException("Invalid step line!")
+                        raise InvalidScenarioException("Invalid Step!")
                     index += 1
-                self._scenarios.append((story_title.group(1), steps))
+                scenarios.append((story_title.group(1), steps))
             else:
                 raise InvalidScenarioException("Invalid Scenario!")
+        return scenarios
 
-    def _parse(self):
-        self._parse_header()
-        self._parse_scenarios()
+    def _parse_stories(self):
+        index = 0
+        while index < len(self._lines):
+            line_regex = re.match(self._regexes['story_regex'], self._lines[index])
+            if line_regex:
+                story_block = [self._lines[index]]
+                index += 1
+                while index < len(self._lines) and\
+                      re.match(self._regexes['story_regex'], self._lines[index]) is None:
+                    story_block.append(self._lines[index])
+                    index += 1
+            else:
+                raise InvalidHeaderException("Invalid Story Header!")
+            title, role, feature, business_value = self._parse_story_header(story_block)
+            scenarios = self._parse_scenarios(story_block[4:])
+            self._stories.append(StoryParsed(title,
+                                             role,
+                                             feature,
+                                             business_value,
+                                             scenarios))
 
-    def get_story_title(self):
-        return self._story_title
 
-    def get_story_role(self):
-        return self._story_role
-
-    def get_story_feature(self):
-        return self._story_feature
-
-    def get_story_businness_value(self):
-        return self._story_businness_value
-
-    def get_scenarios(self):
-        return self._scenarios
+    def get_stories(self):
+        return self._stories
 
 
 
