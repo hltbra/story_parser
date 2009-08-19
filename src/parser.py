@@ -2,7 +2,7 @@
 import re
 
 def parse_text(story_text):
-    return StoryParser(story_text)
+    return StoriesParser(story_text)
 
 
 class RegexInternationalized(object):
@@ -62,7 +62,7 @@ class StoryParsed(object):
     def scenarios(self):
         return self._scenarios
 
-class StoryParser(object):
+class StoriesParser(object):
     _story_title = ''
     _story_role = ''
     _story_feature = ''
