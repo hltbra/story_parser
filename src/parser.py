@@ -111,10 +111,9 @@ class StoriesParser(object):
                 while index < len(lines):
                     if re.match(self._regexes['scenario_regex'], lines[index]):
                         break
-                    line = lines[index]
-                    given_line = re.match(self._regexes['given_regex'], line)
-                    when_line = re.match(self._regexes['when_regex'], line)
-                    then_line = re.match(self._regexes['then_regex'], line)
+                    given_line = re.match(self._regexes['given_regex'], lines[index])
+                    when_line = re.match(self._regexes['when_regex'], lines[index])
+                    then_line = re.match(self._regexes['then_regex'], lines[index])
                     if given_line:
                         steps['given'].append(given_line.group(1))
                     elif when_line:
@@ -149,7 +148,6 @@ class StoriesParser(object):
                                              feature,
                                              business_value,
                                              scenarios))
-
 
     def get_stories(self):
         return self._stories
