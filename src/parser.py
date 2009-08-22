@@ -135,9 +135,7 @@ class StoriesParser(object):
             story_title = re.match(self._regexes['scenario_regex'], lines[index])
             if story_title:
                 index += 1
-                steps = {'given': [],
-                         'when': [],
-                         'then': []}
+                steps = {'given': [],  'when': [], 'then': []}
                 while index < len(lines):
                     if re.match(self._regexes['scenario_regex'], lines[index]):
                         break
@@ -158,19 +156,28 @@ class StoriesParser(object):
                 raise InvalidScenarioException("Invalid Scenario!")
         return scenarios
 
-    def _parse_stories(self):
+    def _get_story_block(self, index):
+        story_block = [self._lines[index]]
+        index += 1
+        while index < len(self._lines) and\
+              re.match(self._regexes['story_regex'], self._lines[index]) is None:
+            story_block.append(self._lines[index])
+            index += 1
+        return story_block, index
+
+    def _get_story_blocks(self):
+        story_blocks = []
         index = 0
         while index < len(self._lines):
-            line_regex = re.match(self._regexes['story_regex'], self._lines[index])
-            if line_regex:
-                story_block = [self._lines[index]]
-                index += 1
-                while index < len(self._lines) and\
-                      re.match(self._regexes['story_regex'], self._lines[index]) is None:
-                    story_block.append(self._lines[index])
-                    index += 1
+            if re.match(self._regexes['story_regex'], self._lines[index]):
+                story_block, index = self._get_story_block(index)
+                story_blocks.append(story_block)
             else:
                 raise InvalidHeaderException("Invalid Story Header!")
+        return story_blocks
+
+    def _parse_stories(self):
+        for story_block in self._get_story_blocks():
             title, role, feature, business_value = self._parse_story_header(story_block)
             scenarios = self._parse_scenarios(story_block[4:])
             self._stories.append(StoryParsed(title,

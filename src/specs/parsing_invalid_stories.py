@@ -14,6 +14,10 @@ class StoryParserWithInvalidStoryHeaders(unittest.TestCase):
                                                       I want to <feature>
                                                       So that <business value>""")
 
+    def test_should_raise_InvalidHeaderException_with_invalid_story_header(self):
+        InvalidHeaderException |should_be.thrown_by| (parse_text, """
+                                                      Story: Title is OK""")
+
     def test_should_raise_InvalidHeaderException_with_invalid_story_role(self):
         InvalidHeaderException |should_be.thrown_by| (parse_text, """
                                                       Story: <Title>
