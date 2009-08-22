@@ -1,6 +1,16 @@
 # coding: utf-8
 import re
 
+
+def get_regex_first_group(regex):
+    """
+    >>> get_regex_first_group(re.match('In order to (.+)', 'In order to avoid duplication'))
+    'avoid duplication'
+    """
+    if regex:
+        return regex.group(1)
+    return None
+
 def parse_text(story_text):
     return StoriesParser(story_text)
 
@@ -8,6 +18,7 @@ def parse_text(story_text):
 class RegexInternationalized(object):
     _all_regexes = {
                 'pt-br': {'story_regex': r'História: (.+)',
+                          'in_order_to_regex': r'Para que (.+)',
                           'as_a_regex': r'Como um (.+)',
                           'i_want_to_regex': r'Eu quero (.+)',
                           'so_that_regex': r'Para que (.+)',
@@ -17,6 +28,7 @@ class RegexInternationalized(object):
                           'then_regex': r'Então (.+)',
                          },
                 'en-us': {'story_regex': r'Story: (.+)',
+                          'in_order_to_regex': r'In order to (.+)',
                           'as_a_regex': r'As an? (.+)',
                           'i_want_to_regex': r'I want to (.+)',
                           'so_that_regex': r'So that (.+)',
@@ -81,22 +93,40 @@ class StoriesParser(object):
         lines = self._story_text.split('\n')
         self._lines = [line.strip() for line in lines if line.strip()]
 
+    def _parse_story_header_with_feature_injection(self, lines):
+        """Story: ...
+        In order to ...
+        As a ...
+        I want to ..."""
+        return map(get_regex_first_group,
+                        (re.match(self._regexes['story_regex'], lines[0]),
+                         re.match(self._regexes['as_a_regex'], lines[2]),
+                         re.match(self._regexes['i_want_to_regex'], lines[3]),
+                         re.match(self._regexes['in_order_to_regex'], lines[1])))
+
+
+    def _parse_story_header_with_basic_template(self, lines):
+        """Story:
+        As a ...
+        I want to ...
+        So that ..."""
+        return map(get_regex_first_group,
+                        (re.match(self._regexes['story_regex'], lines[0]),
+                         re.match(self._regexes['as_a_regex'], lines[1]),
+                         re.match(self._regexes['i_want_to_regex'], lines[2]),
+                         re.match(self._regexes['so_that_regex'], lines[3])))
+
     def _parse_story_header(self, lines):
         if len(lines) < 4:
             raise InvalidHeaderException("Invalid Story Header!")
-        story_title = re.match(self._regexes['story_regex'], lines[0])
-        story_role = re.match(self._regexes['as_a_regex'], lines[1])
-        story_feature = re.match(self._regexes['i_want_to_regex'], lines[2])
-        story_business_value = re.match(self._regexes['so_that_regex'], lines[3])
-        if story_title is None or\
-           story_role is None or\
-           story_feature is None or\
-           story_business_value is None:
-            raise InvalidHeaderException("Invalid Story Header!")
-        return (story_title.group(1),
-                story_role.group(1),
-                story_feature.group(1),
-                story_business_value.group(1))
+        header_with_basic_template = self._parse_story_header_with_basic_template(lines)
+        header_with_feature_injection = self._parse_story_header_with_feature_injection(lines)
+        if None not in header_with_basic_template:
+            return header_with_basic_template
+        elif None not in header_with_feature_injection:
+            return header_with_feature_injection
+        else:
+           raise InvalidHeaderException("Invalid Story Header!")
 
     def _parse_scenarios(self, lines):
         index = 0
@@ -160,3 +190,7 @@ class InvalidHeaderException(Exception):
 
 class InvalidScenarioException(Exception):
     pass
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

@@ -40,6 +40,15 @@ class StoryParserWithValidStorysHeaders(unittest.TestCase):
         story = text_parsed.get_stories()[0]
         story.business_value |should_be.equal_to| 'I rest in peace'
 
+    def test_story_business_value_should_be_have_an_automated_build(self):
+        text_parsed = parse_text("""
+        Story: <Title>
+        In order to have an automated build
+        As a <role>
+        I want to <feature>""")
+        story = text_parsed.get_stories()[0]
+        story.business_value |should_be.equal_to| 'have an automated build'
+
 
 class StoryParserWithValidScenarios(unittest.TestCase):
     def test_scenario_title_should_be_getting_money(self):
