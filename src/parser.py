@@ -132,8 +132,8 @@ class StoriesParser(object):
         index = 0
         scenarios = []
         while index < len(lines):
-            story_title = re.match(self._regexes['scenario_regex'], lines[index])
-            if story_title:
+            scenario_title = re.match(self._regexes['scenario_regex'], lines[index])
+            if scenario_title:
                 index += 1
                 steps = {'given': [],  'when': [], 'then': []}
                 while index < len(lines):
@@ -151,7 +151,7 @@ class StoriesParser(object):
                     else:
                         raise InvalidScenarioException("Invalid Step!")
                     index += 1
-                scenarios.append((story_title.group(1), steps))
+                scenarios.append((scenario_title.group(1), steps))
             else:
                 raise InvalidScenarioException("Invalid Scenario!")
         return scenarios
