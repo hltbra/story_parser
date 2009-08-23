@@ -49,6 +49,23 @@ class StoryParserWithValidStorysHeaders(unittest.TestCase):
         story = text_parsed.get_stories()[0]
         story.business_value |should_be.equal_to| 'have an automated build'
 
+    def test_story_header_should_be_get_easily(self):
+        text_parsed = parse_text("""
+        Story: <Title>
+        In order to <business value>
+        As a <role>
+        I want to <feature>
+
+        Scenario 1: Nothing
+        Given FOO
+        When BAR
+        Then FOOBAR""")
+        story = text_parsed.get_stories()[0]
+        story.header |should_be.equal_to| "Story: <Title>\n"+\
+                                          "In order to <business value>\n"+\
+                                          "As a <role>\n"+\
+                                          "I want to <feature>"
+
 
 class StoryParserWithValidScenarios(unittest.TestCase):
     def test_scenario_title_should_be_getting_money(self):
@@ -68,7 +85,7 @@ class StoryParserWithValidScenarios(unittest.TestCase):
                                       As a <role>
                                       I want to <feature>
                                       So that <business value>
-                                      
+
                                       Scenario 1: Getting Money
                                       Given it works""") 
         story = text_parsed.get_stories()[0]
@@ -102,7 +119,7 @@ class StoryParserWithValidScenarios(unittest.TestCase):
                                         Given I go to http://www.google.com
                                         When I search for pyhistorian
                                         Then I see a github.com page
-                                      
+
                                       Scenario 2: Searching for pyhistorian at Yahoo
                                         Given I go to http://www.yahoo.com
                                         When I search for pyhistorian

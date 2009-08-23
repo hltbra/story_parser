@@ -47,12 +47,13 @@ class RegexInternationalized(object):
 
 
 class StoryParsed(object):
-    def __init__(self, title, role, feature, business_value, scenarios):
+    def __init__(self, title, role, feature, business_value, header, scenarios):
         self._title = title
         self._role = role
         self._feature = feature
         self._business_value = business_value
         self._scenarios = scenarios
+        self._header = '\n'.join(header)
 
     @property
     def title(self):
@@ -73,6 +74,10 @@ class StoryParsed(object):
     @property
     def scenarios(self):
         return self._scenarios
+
+    @property
+    def header(self):
+        return self._header
 
 class StoriesParser(object):
     _story_title = ''
@@ -200,6 +205,7 @@ class StoriesParser(object):
                                              role,
                                              feature,
                                              business_value,
+                                             story_block[:4],
                                              scenarios))
 
     def get_stories(self):
