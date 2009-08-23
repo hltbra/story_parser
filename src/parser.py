@@ -128,32 +128,48 @@ class StoriesParser(object):
         else:
            raise InvalidHeaderException("Invalid Story Header!")
 
-    def _parse_scenarios(self, lines):
+    def _get_scenario_blocks(self, lines):
         index = 0
-        scenarios = []
+        scenario_blocks = []
         while index < len(lines):
             scenario_title = re.match(self._regexes['scenario_regex'], lines[index])
+            accepted_lines_regexes = (self._regexes['given_regex'],
+                                      self._regexes['when_regex'],
+                                      self._regexes['then_regex'])
+            scenario_block = []
             if scenario_title:
+                scenario_block.append(lines[index])
                 index += 1
-                steps = {'given': [],  'when': [], 'then': []}
                 while index < len(lines):
                     if re.match(self._regexes['scenario_regex'], lines[index]):
                         break
-                    given_line = re.match(self._regexes['given_regex'], lines[index])
-                    when_line = re.match(self._regexes['when_regex'], lines[index])
-                    then_line = re.match(self._regexes['then_regex'], lines[index])
-                    if given_line:
-                        steps['given'].append(given_line.group(1))
-                    elif when_line:
-                        steps['when'].append(when_line.group(1))
-                    elif then_line:
-                        steps['then'].append(then_line.group(1))
+                    for accepted_line_regex in accepted_lines_regexes:
+                        if re.match(accepted_line_regex, lines[index]):
+                            scenario_block.append(lines[index])
+                            break
                     else:
                         raise InvalidScenarioException("Invalid Step!")
                     index += 1
-                scenarios.append((scenario_title.group(1), steps))
+                scenario_blocks.append(scenario_block)
             else:
                 raise InvalidScenarioException("Invalid Scenario!")
+        return scenario_blocks
+
+    def _parse_scenarios(self, lines):
+        scenario_blocks = self._get_scenario_blocks(lines)
+        scenarios = []
+        for scenario_block in scenario_blocks:
+            steps = {'given': [],  'when': [], 'then': []}
+            scenario_title = re.match(self._regexes['scenario_regex'], scenario_block[0])
+            for line in scenario_block[1:]:
+                for step_name in ['given', 'when', 'then']:
+                    if re.match(self._regexes[step_name+'_regex'], line):
+                        step_line = re.match(self._regexes[step_name+'_regex'], line)
+                        break
+                else:
+                    raise InvalidScenarioException("Invalid Step!")
+                steps[step_name].append(step_line.group(1))
+            scenarios.append((scenario_title.group(1), steps))
         return scenarios
 
     def _get_story_block(self, index):
