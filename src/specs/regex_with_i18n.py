@@ -38,8 +38,55 @@
 	>>> re.match(portuguese['then_regex'], 'Então <alguma coisa>') is not None
 	True
 
+    >>> parsed_stories = parse_text("""História: Jogando Par ou Ímpar
+    ...   Como um professor do ensino fundamental
+    ...   Eu quero mostrar o jogo de par ou ímpar
+    ...   Para que os alunos possam se divertir jogando par ou ímpar
+    ...
+    ...   Cenário 1: Cada jogador coloca números pares
+    ...     Dado que duas crianças estão jogando par ou ímpar
+    ...     Quando cada uma coloca um número par
+    ...     Então o jogador que pediu par ganha
+    ...
+    ...   Cenário 2: Um jogador coloca número par e o outro, ímpar
+    ...     Dado que duas crianças estão jogando par ou ímpar
+    ...     Quando a primeira coloca um número par e a segunda um número ímpar
+    ...     Então quem pediu ímpar vence""", language='pt-br').get_stories()
+    >>> first_story = parsed_stories[0]
+    >>> print first_story.title
+    Jogando Par ou Ímpar
+    >>> print first_story.role
+    professor do ensino fundamental
+    >>> print first_story.business_value
+    os alunos possam se divertir jogando par ou ímpar
+    >>> print first_story.feature
+    mostrar o jogo de par ou ímpar
+
+    >>> first_scenario = first_story.scenarios[0]
+    >>> second_scenario = first_story.scenarios[1]
+
+    >>> print first_scenario[0]
+    Cada jogador coloca números pares
+    >>> print first_scenario[1]['given'][0]
+    duas crianças estão jogando par ou ímpar
+    >>> print first_scenario[1]['when'][0]
+    cada uma coloca um número par
+    >>> print first_scenario[1]['then'][0]
+    o jogador que pediu par ganha
+
+
+    >>> print second_scenario[1]['given'][0]
+    duas crianças estão jogando par ou ímpar
+    >>> print second_scenario[1]['when'][0]
+    a primeira coloca um número par e a segunda um número ímpar
+    >>> print second_scenario[1]['then'][0]
+    quem pediu ímpar vence
+
+
+    >>> print second_scenario[0]
+    Um jogador coloca número par e o outro, ímpar
 '''
-from story_parser import RegexInternationalized
+from story_parser import RegexInternationalized, parse_text
 import re
 
 if __name__ == '__main__':

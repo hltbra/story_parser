@@ -11,8 +11,8 @@ def get_regex_first_group(regex):
         return regex.group(1)
     return None
 
-def parse_text(story_text):
-    return StoriesParser(story_text)
+def parse_text(story_text, language='en-us'):
+    return StoriesParser(story_text, language)
 
 
 class RegexInternationalized(object):
