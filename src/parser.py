@@ -26,6 +26,7 @@ class RegexInternationalized(object):
                           'given_regex': r'Dado que (.+)',
                           'when_regex': r'Quando (.+)',
                           'then_regex': r'Então (.+)',
+                          'and_regex': r'E (.+)',
                          },
                 'en-us': {'story_regex': r'Story: (.+)',
                           'in_order_to_regex': r'In order to (.+)',
@@ -36,6 +37,7 @@ class RegexInternationalized(object):
                           'given_regex': r'Given (.+)',
                           'when_regex': r'When (.+)',
                           'then_regex': r'Then (.+)',
+                          'and_regex': r'And (.+)',
                          },
                }
 
@@ -140,7 +142,8 @@ class StoriesParser(object):
             scenario_title = re.match(self._regexes['scenario_regex'], lines[index])
             accepted_lines_regexes = (self._regexes['given_regex'],
                                       self._regexes['when_regex'],
-                                      self._regexes['then_regex'])
+                                      self._regexes['then_regex'],
+                                      self._regexes['and_regex'])
             scenario_block = []
             if scenario_title:
                 scenario_block.append(lines[index])
@@ -166,10 +169,18 @@ class StoriesParser(object):
         for scenario_block in scenario_blocks:
             steps = {'given': [],  'when': [], 'then': []}
             scenario_title = re.match(self._regexes['scenario_regex'], scenario_block[0])
+            last_step = None
             for line in scenario_block[1:]:
                 for step_name in ['given', 'when', 'then']:
                     if re.match(self._regexes[step_name+'_regex'], line):
                         step_line = re.match(self._regexes[step_name+'_regex'], line)
+                        last_step = step_name
+                        break
+                    elif re.match(self._regexes['and_regex'], line):
+                        step_line = re.match(self._regexes['and_regex'], line)
+                        if last_step is None:
+                            raise InvalidScenarioException('Invalid Step!')
+                        step_name = last_step
                         break
                 else:
                     raise InvalidScenarioException("Invalid Step!")

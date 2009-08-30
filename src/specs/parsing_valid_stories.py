@@ -136,6 +136,21 @@ class StoryParserWithValidScenarios(unittest.TestCase):
                                          'when': ['I search for pyhistorian'],
                                          'then': ['I see the old code.google.com page']}) ]
 
+class ParsingScenariosWithAnds(unittest.TestCase):
+    def test_and_from_when_step(self):
+        text_parsed = parse_text("""Story: <Title>
+                                      As a <role>
+                                      I want to <feature>
+                                      So that <business value>
+                                      Scenario 1: Searching for pyhistorian at Google
+                                        Given I go to http://www.google.com
+                                        When I fill the searchbox with pyhistorian
+                                        And I click at "Search"
+                                        Then I see a github.com page""")
+        story = text_parsed.get_stories()[0]
+        title, steps = story.scenarios[0]
+        steps['when'] |should_be.equal_to| ['I fill the searchbox with pyhistorian', 'I click at "Search"']
+
 
 class ParsingMultipleValidStories(unittest.TestCase):
     text_parsed = parse_text("""Story: First Story

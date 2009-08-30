@@ -61,5 +61,15 @@ class StoryParserWithInvalidScenarios(unittest.TestCase):
                                                            Foo Step
                                                         """)
         
+class ScenarioWithInvalidAndStep(unittest.TestCase):
+    def test_and_without_context(self):
+        InvalidScenarioException |should_be.thrown_by| (parse_text,
+                                                        """Story: 1
+                                                        As a 2
+                                                        I want to 3
+                                                        So that 4
+
+                                                        Scenario 1: 5
+                                                        And aff""")
 if __name__ == '__main__':
     unittest.main()
