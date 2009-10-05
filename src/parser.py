@@ -1,4 +1,5 @@
 # coding: utf-8
+import doctest
 import re
 
 
@@ -182,8 +183,8 @@ class StoriesParser(object):
                             raise InvalidScenarioException('Invalid Step!')
                         step_name = last_step
                         break
-                else:
-                    raise InvalidScenarioException("Invalid Step!")
+#                else:
+#                    raise InvalidScenarioException("Invalid Step!")
                 steps[step_name].append(step_line.group(1))
             scenarios.append((scenario_title.group(1), steps))
         return scenarios
@@ -232,5 +233,4 @@ class InvalidScenarioException(Exception):
     pass
 
 if __name__ == '__main__':
-    import doctest
     doctest.testmod()
