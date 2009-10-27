@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.1.1'
-README = open('README.rst')).read()
+version = '0.1.2'
+README = open('README.rst').read()
 
 setup(name='story_parser',
       version=version,

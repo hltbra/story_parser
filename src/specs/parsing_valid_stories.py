@@ -115,6 +115,21 @@ class StoryParserWithValidScenarios(unittest.TestCase):
                                       As a <role>
                                       I want to <feature>
                                       So that <business value>
+                                      Scenario: <title>
+                                        Then <nothing>
+                                        """) 
+
+        story = text_parsed.get_stories()[0]
+        story.scenarios |should_be.equal_to| [('<title>',
+                                        {'given': [],
+                                         'when': [],
+                                         'then': ['<nothing>']}),]
+
+    def test_scenario_numbering_should_be_optional(self):
+        text_parsed = parse_text("""Story: <Title>
+                                      As a <role>
+                                      I want to <feature>
+                                      So that <business value>
                                       Scenario 1: Searching for pyhistorian at Google
                                         Given I go to http://www.google.com
                                         When I search for pyhistorian
