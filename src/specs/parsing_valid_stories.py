@@ -109,23 +109,7 @@ class StoryParserWithValidScenarios(unittest.TestCase):
                                           'when': ['I search for pyhistorian'],
                                           'then': ['I see a github.com page']})]
 
-
     def test_story_with_two_scenarios_each_one_with_three_steps(self):
-        text_parsed = parse_text("""Story: <Title>
-                                      As a <role>
-                                      I want to <feature>
-                                      So that <business value>
-                                      Scenario: <title>
-                                        Then <nothing>
-                                        """) 
-
-        story = text_parsed.get_stories()[0]
-        story.scenarios |should_be.equal_to| [('<title>',
-                                        {'given': [],
-                                         'when': [],
-                                         'then': ['<nothing>']}),]
-
-    def test_scenario_numbering_should_be_optional(self):
         text_parsed = parse_text("""Story: <Title>
                                       As a <role>
                                       I want to <feature>
@@ -150,6 +134,22 @@ class StoryParserWithValidScenarios(unittest.TestCase):
                                         {'given': ['I go to http://www.yahoo.com'],
                                          'when': ['I search for pyhistorian'],
                                          'then': ['I see the old code.google.com page']}) ]
+
+    def test_scenario_numbering_should_be_optional(self):
+        text_parsed = parse_text("""Story: <Title>
+                                      As a <role>
+                                      I want to <feature>
+                                      So that <business value>
+                                      Scenario: <title>
+                                        Then <nothing>
+                                        """)
+
+        story = text_parsed.get_stories()[0]
+        story.scenarios |should_be.equal_to| [('<title>',
+                                        {'given': [],
+                                         'when': [],
+                                         'then': ['<nothing>']}),]
+
 
 class ParsingScenariosWithAnds(unittest.TestCase):
     def test_and_from_when_step(self):
